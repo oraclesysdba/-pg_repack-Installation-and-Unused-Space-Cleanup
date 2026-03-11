@@ -24,7 +24,7 @@
 
 ### 2.1 Prerequisites
 
-- PostgreSQL **9.4+** (recommended: **14, 15, 16, 17**)
+- PostgreSQL **9.4+** (recommended: **14, 15, 16, 17, 18**)
 - Superuser or `pg_repack` role privileges
 - Sufficient disk space (pg_repack creates a copy of the table during reorganization)
 
@@ -36,9 +36,15 @@
 # Install the PGDG repository (if not already installed)
 sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-$(rpm -E %{rhel})-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
-# Install pg_repack (replace 16 with your PostgreSQL major version)
-sudo dnf install -y pg_repack_16
+# Install pg_repack (replace 18 with your PostgreSQL major version)
+sudo dnf install -y pg_repack_18
+
+# Also install the development package (required for building other extensions from source)
+sudo dnf install -y postgresql18-devel
 ```
+
+> [!TIP]
+> To see all available pg_repack versions: `dnf list available | grep pg_repack`
 
 #### On Ubuntu / Debian
 
@@ -51,12 +57,21 @@ sudo apt-get install -y postgresql-16-repack
 #### From Source (Any Platform)
 
 ```bash
+# Install build dependencies (RHEL/CentOS)
+sudo dnf install -y gcc make postgresql18-devel redhat-rpm-config readline-devel zlib-devel openssl-devel
+
 # Ensure pg_config is in your PATH
+export PATH=/usr/pgsql-18/bin:$PATH
+
+# Clone and build
 git clone https://github.com/reorg/pg_repack.git
 cd pg_repack
 make
 sudo make install
 ```
+
+> [!WARNING]
+> The `postgresql18-devel` package is **required** — it provides the build infrastructure (`pgxs.mk`, headers) needed to compile extensions from source. Without it, `make` will fail.
 
 ### 2.3 Create the Extension in PostgreSQL
 
